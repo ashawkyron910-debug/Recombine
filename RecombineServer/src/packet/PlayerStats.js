@@ -11,6 +11,7 @@ class PlayerStats {
         var flags = 0;
         flags |= this.playerTracker.frozen;
         writer.writeUInt8(flags);
+        writer.writeUInt32(this.playerTracker.coins >>> 0);
         return writer.toBuffer();
     }
 }

@@ -34,6 +34,8 @@ class Server {
         this.nodesPush = []; // Push pellets
         this.nodesFood = []; // Food nodes
         this.nodesEjected = []; // Ejected nodes
+        this.nodesGoldCoin = []; // Gold coin nodes
+        this.nodesGoldBlock = []; // Gold block nodes
         this.nodesPlayer = []; // Player nodes
         this.movingNodes = []; // For move engine
         this.leaderboard = []; // For leaderboard
@@ -106,6 +108,7 @@ class Server {
             Logger.info("Added " + this.config.serverBots + " player bots");
         }
         this.spawnCells(this.config.virusAmount, this.config.foodAmount);
+        this.spawnGoldBlocks();
     }
     addNode(node) {
         // Add to quad-tree & node list
@@ -508,6 +511,8 @@ class Server {
             this.nodesPush = [];
             this.nodesFood = [];
             this.nodesEjected = [];
+            this.nodesGoldCoin = [];
+            this.nodesGoldBlock = [];
             this.nodesPlayer = [];
             this.movingNodes = [];
             if (this.config.serverBots) {
@@ -606,6 +611,9 @@ class Server {
                     if (this.ticks >= eject.createdAt + this.config.ejectLifeTime * 25) this.removeNode(eject);
                 });
             }
+            this.nodesGoldBlock.forEach((block) => {
+                if (!block.isRemoved) block.trySpawnCoin();
+            });
             this.mode.onTick(this);
             this.ticks++;
         }
@@ -725,6 +733,8 @@ class Server {
     }
     // Checks if collision is rigid body collision
     checkRigidCollision(m) {
+        if (m.cell.type === 6 || m.check.type === 6)
+            return true;
         if (!m.cell.owner || !m.check.owner)
             return false;
         if (m.cell.owner != m.check.owner) {
@@ -746,6 +756,17 @@ class Server {
     }
     // Resolves rigid body collisions
     resolveRigidCollision(m) {
+        if (m.cell.type === 6 || m.check.type === 6) {
+            var push = (m.cell._size + m.check._size - m.d) / m.d;
+            if (push <= 0 || m.d == 0)
+                return;
+            var block = m.cell.type === 6 ? m.cell : m.check;
+            var other = block === m.cell ? m.check : m.cell;
+            if (other.type !== 6) {
+                other.position.add(m.p.product(push));
+            }
+            return;
+        }
         var push = (m.cell._size + m.check._size - m.d) / m.d;
         if (push <= 0 || m.d == 0)
             return; // do not extrude
@@ -764,6 +785,8 @@ class Server {
     resolveCollision(m) {
         var cell = m.cell;
         var check = m.check;
+        if (cell.type === 6 || check.type === 6)
+            return;
         if (cell._size > check._size) {
             cell = m.check;
             check = m.cell;
@@ -844,6 +867,24 @@ class Server {
         if (forced || !this.willCollide(virus)) {
             this.addNode(virus);
         }
+    }
+    spawnGoldBlocks() {
+        const count = this.config.goldBlockCount;
+        if (!count) return;
+        const size = this.config.goldBlockSize;
+        const margin = size * 1.1;
+        const spacing = size * 2.1;
+        const startX = this.border.minx + margin;
+        const startY = this.border.maxy - margin;
+        const cols = 2;
+        for (let i = 0; i < count; i++) {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const pos = new Vec2(startX + col * spacing, startY - row * spacing);
+            const block = new Entity.GoldBlock(this, null, pos, size);
+            this.addNode(block);
+        }
+        Logger.info("Spawned " + count + " gold blocks at bottom-left");
     }
     spawnCells(virusCount, foodCount) {
         for (var i = 0; i < foodCount; i++) {
@@ -950,7 +991,7 @@ class Server {
             } else {
                 ejected = new Entity.EjectedMass(this, null, pos, this.config.ejectSize);
             }
-            ejected.color = cell.color;
+            ejected.color = { r: 255, g: 215, b: 0 };
             ejected.setBoost(this.config.ejectVelocity, angle);
             this.addNode(ejected);
         }

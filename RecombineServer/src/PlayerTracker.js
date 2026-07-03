@@ -28,6 +28,7 @@ class PlayerTracker {
         this.nicknames = []; // Player verified nicknames
         this.speed = 0; // Custom player speed
         this._score = 0; // Needed for leaderboard
+        this.coins = 0;
         this._scale = 1;
         this.gm = false;
         this.lastMessage = { time: 0, text: '' };
@@ -221,6 +222,13 @@ class PlayerTracker {
         else
             return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
     }
+    addCoins(amount) {
+        if (!amount) return;
+        this.coins += amount;
+        if (this.socket && this.socket.packetHandler) {
+            this.socket.packetHandler.sendPacket(new Packet.PlayerStats(this));
+        }
+    }
     joinGame(name, skin) {
         if (this.cells.length)
             return;
@@ -232,6 +240,7 @@ class PlayerTracker {
         this.spectate = false;
         this.freeRoam = false;
         this.frozen = false;
+        this.coins = 0;
         this.spectateTarget = null;
         var packetHandler = this.socket.packetHandler;
         if (!this.isMi && this.socket.isConnected != null) {

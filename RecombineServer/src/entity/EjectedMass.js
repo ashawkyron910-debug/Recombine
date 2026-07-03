@@ -16,6 +16,12 @@ class EjectedMass extends Cell {
             server.nodesEjected.splice(index, 1);
         };
     };
+
+    onEaten(hunter) {
+        if (hunter.owner) {
+            hunter.owner.addCoins(this.server.config.goldCoinReward);
+        }
+    };
 };
 
 module.exports = EjectedMass;

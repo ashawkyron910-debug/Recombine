@@ -642,8 +642,13 @@
                 break;
             case 51: // update stats
                 var flags = msg.getUint8(offset, true);
+                offset += 1;
                 var frozen = flags & 0x01;
                 stats.frozen = frozen;
+                if (offset + 4 <= msg.byteLength) {
+                    stats.coins = msg.getUint32(offset, true);
+                    offset += 4;
+                }
                 drawStats();
                 break;
             case 52:// swal
@@ -1268,7 +1273,12 @@
         // var start = (ctx.measureText(frozen).width > 200) ? 2 : 100 - ctx.measureText(frozen).width * 0.5;
         var b = 0;
         for (const stat in stats) {
-            var text = stat + ": " + (stats[stat] ? "yes" : "no");
+            var text;
+            if (stat === "coins") {
+                text = "Coins: " + stats[stat].toLocaleString();
+            } else {
+                text = stat + ": " + (stats[stat] ? "yes" : "no");
+            }
             ctx.fillText(text, 16, 64 + 32 * b++);
         }
     }
