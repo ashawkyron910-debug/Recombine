@@ -157,3 +157,124 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* DARK MODE TOGGLE */
+
+.dark-mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 0 2px;
+}
+
+.dark-mode-label-text {
+    font-weight: 700;
+    color: #333;
+}
+
+.dark-mode-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.dark-mode-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.dark-mode-slider {
+    position: absolute;
+    inset: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: background-color 0.2s ease;
+}
+
+.dark-mode-slider:before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.dark-mode-switch input:checked + .dark-mode-slider {
+    background-color: #5cb85c;
+}
+
+.dark-mode-switch input:checked + .dark-mode-slider:before {
+    transform: translateX(24px);
+}
+
+/* DARK MODE UI */
+
+body.dark-mode {
+    color-scheme: dark;
+}
+
+body.dark-mode #helloDialog,
+body.dark-mode #authDialog {
+    background-color: #1a1a2e;
+    color: #e8e8f0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-mode #title,
+body.dark-mode .dark-mode-label-text {
+    color: #f0f0f5;
+}
+
+body.dark-mode .form-control {
+    background-color: #2a2a3e;
+    border-color: #3d3d55;
+    color: #f0f0f5;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #9a9ab0;
+}
+
+body.dark-mode .text-muted {
+    color: #a8a8c0 !important;
+}
+
+body.dark-mode hr {
+    border-color: #3d3d55;
+}
+
+body.dark-mode #footer {
+    color: #c8c8d8;
+}
+
+body.dark-mode #connecting > div {
+    background-color: #1a1a2e !important;
+    color: #e8e8f0;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1a1a2e;
+    color: #e8e8f0;
+}
+
+body.dark-mode .modal-header {
+    border-bottom-color: #3d3d55;
+}
+
+body.dark-mode .modal-footer {
+    border-top-color: #3d3d55;
+}
+
+body.dark-mode .close {
+    color: #e8e8f0;
+    opacity: 0.8;
+}

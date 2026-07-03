@@ -24,3 +24,13 @@ Serve the `RecombineClient` directory with a web server that supports PHP (e.g. 
 ## License
 
 See `RecombineServer/LICENSE.txt` (Apache-2.0).
+
+## Auto-push to GitHub
+
+This repo includes a Cursor hook (`.cursor/hooks.json`) that commits and pushes changes when an agent session ends.
+
+To push manually:
+
+```powershell
+.\scripts\auto-push.ps1
+```

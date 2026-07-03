@@ -1389,7 +1389,9 @@
         showName = arg
     };
     wHandle.setDarkTheme = function(arg) {
-        showDarkTheme = arg
+        showDarkTheme = arg;
+        wjQuery("body").toggleClass("dark-mode", arg);
+        wjQuery("#dark-mode-toggle").prop("checked", arg);
     };
     wHandle.setColors = function(arg) {
         showColor = arg
