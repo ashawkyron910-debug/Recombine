@@ -1,0 +1,22 @@
+{
+    "name": "multi-ogar-2",
+    "version": "1.6.2",
+    "description": "Open source multi-protocol Ogar server",
+    "author": "Megabyte918 (https://github.com/Megabyte918)",
+    "homepage": "https://github.com/Megabyte918/MultiOgarII",
+    "license": "Apache-2.0",
+    "main": "src/index.js",
+    "dependencies": {
+        "axios": "^0.21.0",
+        "cookie": "^0.4.1",
+        "discord.js": "^12.4.1",
+        "dotenv": "^8.2.0",
+        "jsonwebtoken": "^8.5.1",
+        "mongodb": "^3.6.10",
+        "nedb": "^1.8.0",
+        "ws": "^7.3.1"
+    },
+    "scripts": {
+        "start": "cd src && node index"
+    }
+}

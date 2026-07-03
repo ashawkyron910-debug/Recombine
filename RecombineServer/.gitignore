@@ -1,0 +1,17 @@
+# Config file
+src/config.js
+
+# Databases
+src/db
+
+# Node modules
+node_modules
+
+# Package-lock
+package-lock.json
+
+# Dot env configuration file
+.env
+
+# Vim swap file
+**/*.swp

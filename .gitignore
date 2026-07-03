@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+*.pem
+
+# Server config and local data
+RecombineServer/src/config.js
+RecombineServer/src/db/
+
+# Lock files
+package-lock.json
+
+# Editor
+**/*.swp
+.vscode/
