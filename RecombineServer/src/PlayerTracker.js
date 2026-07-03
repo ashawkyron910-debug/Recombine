@@ -36,6 +36,10 @@ class PlayerTracker {
         this.goldCoinsCollected = 0;
         this.gamesPlayed = 0;
         this.dataKey = null;
+        this.botLicenseBots = 0;
+        this.botLicenseExpiresAt = 0;
+        this.botLicenseMassBots = false;
+        this.minionPanelEnabled = true;
         this._scale = 1;
         this.gm = false;
         this.lastMessage = { time: 0, text: '' };
@@ -325,6 +329,11 @@ class PlayerTracker {
         this.socket.packetHandler.process();
         if ((this.server.ticks % 750) === 0) {
             this.savePlayerData();
+        }
+        const botShop = require('./modules/botShop');
+        if ((this.server.ticks % 25) === 0) {
+            botShop.checkLicense(this);
+            if (this.botLicenseExpiresAt) botShop.sendState(this);
         }
         if (this.isMi)
             return;

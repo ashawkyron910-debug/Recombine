@@ -15,4 +15,5 @@ module.exports = {
     Swal: require('./Swal'),
     Note: require('./Note'),
     Quest: require('./Quest'),
+    BotShop: require('./BotShop'),
 };

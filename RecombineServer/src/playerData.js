@@ -16,6 +16,10 @@ function defaultData() {
         totalFeeds: 0,
         goldCoinsCollected: 0,
         gamesPlayed: 0,
+        botLicenseBots: 0,
+        botLicenseExpiresAt: 0,
+        botLicenseMassBots: false,
+        minionPanelEnabled: true,
         updatedAt: Date.now()
     };
 }
@@ -84,6 +88,10 @@ function loadInto(player) {
     player.totalFeeds = data.totalFeeds || 0;
     player.goldCoinsCollected = data.goldCoinsCollected || 0;
     player.gamesPlayed = data.gamesPlayed || 0;
+    player.botLicenseBots = data.botLicenseBots || 0;
+    player.botLicenseExpiresAt = data.botLicenseExpiresAt || 0;
+    player.botLicenseMassBots = !!data.botLicenseMassBots;
+    player.minionPanelEnabled = data.minionPanelEnabled !== false;
     player.savedData = data;
 }
 
@@ -99,6 +107,10 @@ function syncFromPlayer(player) {
     data.totalFeeds = player.totalFeeds || 0;
     data.goldCoinsCollected = player.goldCoinsCollected || 0;
     data.gamesPlayed = player.gamesPlayed || 0;
+    data.botLicenseBots = player.botLicenseBots || 0;
+    data.botLicenseExpiresAt = player.botLicenseExpiresAt || 0;
+    data.botLicenseMassBots = !!player.botLicenseMassBots;
+    data.minionPanelEnabled = player.minionPanelEnabled !== false;
     save(key, data);
 }
 

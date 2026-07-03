@@ -6,6 +6,25 @@
         SKIN_URL = "./skins/", // Skin Directory
         TIMEOUT = 50;
 
+    var botShopState = {
+        bots: 0,
+        secondsLeft: 0,
+        massBots: false,
+        panelEnabled: true,
+        active: false,
+        activeCount: 0
+    };
+
+    var BOT_PACKS = [
+        { id: 1, bots: 10, hours: 1, price: 70000, massBots: false },
+        { id: 2, bots: 40, hours: 2, price: 125000, massBots: false },
+        { id: 3, bots: 50, hours: 2, price: 149000, massBots: false },
+        { id: 4, bots: 100, hours: 4, price: 480000, massBots: false },
+        { id: 5, bots: 125, hours: 8, price: 600000, massBots: false },
+        { id: 6, bots: 300, hours: 24, price: 900000, massBots: false },
+        { id: 7, bots: 100, hours: 1, price: 800000, massBots: true, label: 'MASS' }
+    ];
+
     wHandle.setserver = function(arg) {
         if (arg != CONNECTION_URL) {
             CONNECTION_URL = arg;
@@ -368,6 +387,10 @@
                 var t = parseInt(localStorage.getItem('timePlayed') || '0', 10) + 1;
                 localStorage.setItem('timePlayed', t);
             }
+            if (botShopState.secondsLeft > 0 && !hasOverlay) {
+                botShopState.secondsLeft = Math.max(0, botShopState.secondsLeft - 1);
+                updateMinionPanel();
+            }
         }, 1000);
         setInterval(() => {
             sendMouseMove();
@@ -378,7 +401,11 @@
 
         null == ws && showConnecting();
         wjQuery("#overlays").show();
+        botShopState.panelEnabled = localStorage.getItem('minionPanelEnabled') !== '0';
+        var panelToggle = document.getElementById('minion-panel-toggle');
+        if (panelToggle) panelToggle.checked = botShopState.panelEnabled;
         updateHomeProfile();
+        renderShopGrid();
     }
 
     function onTouchStart(e) {
@@ -485,7 +512,7 @@
     }
 
     function hideOverlays() {
-        setTimeout(function () { hasOverlay = false; });
+        setTimeout(function () { hasOverlay = false; updateMinionPanel(); });
         wjQuery("#overlays").hide();
     }
 
@@ -493,6 +520,72 @@
         hasOverlay = true;
         userNickName = null;
         wjQuery("#overlays").fadeIn(arg ? 200 : 3E3);
+        updateMinionPanel();
+    }
+
+    function formatBotTime(totalSeconds) {
+        var h = Math.floor(totalSeconds / 3600);
+        var m = Math.floor((totalSeconds % 3600) / 60);
+        var s = totalSeconds % 60;
+        return h + ':' + ('0' + m).slice(-2) + ':' + ('0' + s).slice(-2);
+    }
+
+    function renderShopGrid() {
+        var grid = document.getElementById('shop-grid');
+        if (!grid) return;
+        grid.innerHTML = BOT_PACKS.map(function(pack) {
+            var title = pack.label ? pack.bots + ' ' + pack.label + ' Bots' : pack.bots + ' Bots';
+            var price = pack.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return '<div class="shop-card"><div class="shop-card-inner">' +
+                '<div class="shop-card-icon">&#129302;</div>' +
+                '<div class="shop-card-body">' +
+                '<div><div class="shop-card-title">' + title + '</div>' +
+                '<div class="shop-card-hours">' + pack.hours + ' HOUR' + (pack.hours > 1 ? 'S' : '') + '</div></div>' +
+                '<div class="shop-card-footer">' +
+                '<div class="shop-card-price">&#129689; ' + price + '</div>' +
+                '<button type="button" class="shop-buy-btn" onclick="buyBotPack(' + pack.id + ')">Buy</button>' +
+                '</div></div></div></div>';
+        }).join('');
+    }
+
+    function updateMinionPanel() {
+        var panel = document.getElementById('minion-panel');
+        if (!panel) return;
+        var show = !hasOverlay && botShopState.panelEnabled && (botShopState.secondsLeft > 0 || botShopState.active);
+        panel.style.display = show ? 'block' : 'none';
+        var botsLabel = document.getElementById('minion-bots-label');
+        var timeLabel = document.getElementById('minion-time-label');
+        var activeLabel = document.getElementById('minion-active-label');
+        var startBtn = panel.querySelector('.minion-start-btn');
+        var title = botShopState.massBots ? botShopState.bots + ' MASS Bots' : botShopState.bots + ' Bots';
+        if (botsLabel) botsLabel.textContent = title;
+        if (timeLabel) timeLabel.textContent = formatBotTime(botShopState.secondsLeft) + ' left';
+        if (activeLabel) activeLabel.textContent = botShopState.active ? ('Active: ' + botShopState.activeCount + ' minions') : '';
+        if (startBtn) startBtn.disabled = botShopState.secondsLeft <= 0;
+        var toggle = document.getElementById('minion-panel-toggle');
+        if (toggle) toggle.checked = botShopState.panelEnabled;
+    }
+
+    function sendBuyBotPack(packId) {
+        if (!wsIsOpen()) {
+            swal('Connect to the server first!');
+            return;
+        }
+        var msg = prepareData(2);
+        msg.setUint8(0, 30);
+        msg.setUint8(1, packId);
+        wsSend(msg);
+    }
+
+    function sendMinionPanelEnabled(enabled) {
+        botShopState.panelEnabled = enabled;
+        localStorage.setItem('minionPanelEnabled', enabled ? '1' : '0');
+        updateMinionPanel();
+        if (!wsIsOpen()) return;
+        var msg = prepareData(2);
+        msg.setUint8(0, 32);
+        msg.setUint8(1, enabled ? 1 : 0);
+        wsSend(msg);
     }
 
     function showConnecting() {
@@ -691,6 +784,22 @@
                 }
                 offset += 2;
                 encryptedSet('note', noteText);
+                break;
+            case 54: // bot shop state
+                botShopState.bots = msg.getUint16(offset, true);
+                offset += 2;
+                botShopState.secondsLeft = msg.getUint32(offset, true);
+                offset += 4;
+                botShopState.massBots = !!msg.getUint8(offset, true);
+                offset += 1;
+                botShopState.panelEnabled = !!msg.getUint8(offset, true);
+                offset += 1;
+                botShopState.active = !!msg.getUint8(offset, true);
+                offset += 1;
+                botShopState.activeCount = msg.getUint16(offset, true);
+                offset += 2;
+                updateMinionPanel();
+                updateHomeProfile();
                 break;
             case 64: // set border
                 leftPos = msg.getFloat64(offset, true);
@@ -1468,6 +1577,24 @@
         location.reload();
     }
     wHandle.updateHomeProfile = updateHomeProfile;
+    wHandle.openBotShop = function() {
+        renderShopGrid();
+        document.getElementById('shop-modal').style.display = 'flex';
+    };
+    wHandle.closeBotShop = function() {
+        document.getElementById('shop-modal').style.display = 'none';
+    };
+    wHandle.buyBotPack = function(packId) {
+        sendBuyBotPack(packId);
+    };
+    wHandle.startBots = function() {
+        sendUint8(31);
+    };
+    wHandle.setMinionPanelEnabled = sendMinionPanelEnabled;
+    wHandle.toggleMinionPanelCompact = function() {
+        var panel = document.getElementById('minion-panel');
+        if (panel) panel.classList.toggle('compact');
+    };
     wHandle.setNick = function(arg, arg1 = '') {
         hideOverlays();
         userNickName = `<${arg1}>${arg}`;

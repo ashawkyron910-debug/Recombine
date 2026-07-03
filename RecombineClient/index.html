@@ -16,14 +16,14 @@
     <link id="favicon" rel="icon" type="image/png" href="assets/img/favicon.png" />
     <link href='https://fonts.googleapis.com/css?family=Ubuntu:400,700' rel='stylesheet' type='text/css'>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/index.css?v=14" rel="stylesheet">
+    <link href="assets/css/index.css?v=15" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="assets/js/fp.min.js"></script>
     <script src="assets/js/log.js"></script>
     <script src="assets/js/vector.js"></script>
     <script src="assets/js/sweetalert.min.js"></script>
-    <script src="assets/js/main_out.js?v=69"></script>
+    <script src="assets/js/main_out.js?v=70"></script>
 </head>
 
 <body class="dark-mode">
@@ -139,7 +139,7 @@
 
                         <button type="submit" id="play-btn" onclick="setNick(document.getElementById('nick').value, document.getElementById('skin').value); return false;" class="btn-play-main btn-needs-server">PLAY</button>
 
-                        <button type="button" class="side-btn shop-btn" onclick="swal('Shop coming soon!')">
+                        <button type="button" class="side-btn shop-btn" onclick="openBotShop()">
                             <span class="side-btn-icon">&#129689;</span> Shop
                         </button>
                         <button type="button" class="side-btn gold-btn" onclick="document.getElementById('auth-btn') ? authBtn.click() : swal('Discord login coming soon!')">
@@ -179,6 +179,36 @@
                     <button type="submit" id="auth-btn" class="btn-play-main btn-needs-server">Log in</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="shop-modal" style="display:none;">
+        <div class="shop-window">
+            <div class="shop-header">
+                <h2>Minions</h2>
+                <button type="button" class="shop-close" onclick="closeBotShop()">&times;</button>
+            </div>
+            <div class="shop-info-box">
+                <p>Minions/Bots are cells which follow your mouse or your cell, and suicide into you giving you their mass. Buy a pack to start a timer. After you spawn in-game, use the <b>Start Bots</b> panel at the top of the screen.</p>
+                <label class="shop-panel-toggle">
+                    <input type="checkbox" id="minion-panel-toggle" checked onchange="setMinionPanelEnabled(this.checked)">
+                    <span>Click here to turn on Minion Panel Interface (lets you start minions ingame - Top of screen).</span>
+                </label>
+            </div>
+            <div class="shop-grid" id="shop-grid"></div>
+        </div>
+    </div>
+
+    <div id="minion-panel" class="minion-panel" style="display:none;">
+        <div class="minion-panel-inner">
+            <span class="minion-brand">Recombine Minions</span>
+            <button type="button" class="minion-start-btn" onclick="startBots()">Start Bots</button>
+            <div class="minion-info">
+                <span id="minion-bots-label">0 Bots</span>
+                <span id="minion-time-label">0:00:00 left</span>
+                <span id="minion-active-label"></span>
+            </div>
+            <button type="button" class="minion-collapse" onclick="toggleMinionPanelCompact()">-</button>
         </div>
     </div>
 

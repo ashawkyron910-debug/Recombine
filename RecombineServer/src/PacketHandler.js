@@ -60,6 +60,9 @@ class PacketHandler {
             27: this.message_onKeyH.bind(this),
             28: this.message_onKeyM.bind(this),
             29: this.message_onKeyV.bind(this),
+            30: this.message_onBuyBot.bind(this),
+            31: this.message_onStartBots.bind(this),
+            32: this.message_onMinionPanel.bind(this),
             99: this.message_onChat.bind(this),
             253: this.message_onSelfBan.bind(this),
             254: this.message_onStat.bind(this),
@@ -77,6 +80,8 @@ class PacketHandler {
         if (this.server.config.serverChat == 0)
             this.server.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
         this.sendPacket(new Packet.PlayerStats(this.socket.playerTracker));
+        const botShop = require('../modules/botShop');
+        botShop.sendState(this.socket.playerTracker);
         if (this.protocol < 4)
             this.server.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
     }
@@ -223,6 +228,25 @@ class PacketHandler {
             return;
         }
         this.sendPacket(new Packet.ServerStat(this.socket.playerTracker));
+    }
+    message_onBuyBot(message) {
+        if (message.length < 2) return;
+        const packId = message[1];
+        const botShop = require('../modules/botShop');
+        botShop.purchase(this.socket.playerTracker, packId);
+    }
+    message_onStartBots(message) {
+        if (message.length !== 1) return;
+        const botShop = require('../modules/botShop');
+        botShop.startBots(this.socket.playerTracker);
+    }
+    message_onMinionPanel(message) {
+        if (message.length < 2) return;
+        this.socket.playerTracker.minionPanelEnabled = message[1] === 1;
+        const playerData = require('../playerData');
+        playerData.syncFromPlayer(this.socket.playerTracker);
+        const botShop = require('../modules/botShop');
+        botShop.sendState(this.socket.playerTracker);
     }
     processMouse() {
         if (this.mouseData == null)
