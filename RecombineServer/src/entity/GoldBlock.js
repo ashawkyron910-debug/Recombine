@@ -18,6 +18,7 @@ class GoldBlock extends Cell {
 
     onEat(prey) {
         if (prey.type === 3 && prey.owner) {
+            prey.owner.totalFeeds += 1;
             prey.owner.addCoins(this.server.config.goldCoinReward);
         }
     }

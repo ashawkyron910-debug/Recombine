@@ -27,6 +27,7 @@ class GoldCoin extends Cell {
 
     onEaten(hunter) {
         if (hunter.owner) {
+            hunter.owner.goldCoinsCollected += 1;
             hunter.owner.addCoins(this.server.config.goldCoinReward);
         }
     }

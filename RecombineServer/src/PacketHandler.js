@@ -76,6 +76,7 @@ class PacketHandler {
             this.server.sendChatMessage(null, this.socket.playerTracker, this.server.config.serverWelcome2);
         if (this.server.config.serverChat == 0)
             this.server.sendChatMessage(null, this.socket.playerTracker, "This server's chat is disabled.");
+        this.sendPacket(new Packet.PlayerStats(this.socket.playerTracker));
         if (this.protocol < 4)
             this.server.sendChatMessage(null, this.socket.playerTracker, "WARNING: Protocol " + this.protocol + " assumed as 4!");
     }

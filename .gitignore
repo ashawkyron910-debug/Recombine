@@ -8,6 +8,7 @@ node_modules/
 # Server config and local data
 RecombineServer/src/config.js
 RecombineServer/src/db/
+RecombineServer/src/playerData.json
 
 # Lock files
 package-lock.json

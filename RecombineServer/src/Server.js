@@ -195,6 +195,8 @@ class Server {
             return;
         }
         await addConnection(ws.info);
+        const playerData = require('./playerData');
+        playerData.loadInto(ws.playerTracker);
     }
     onClientSocketOpen(ws, req) {
         var ready = false;
@@ -268,6 +270,10 @@ class Server {
             ws.closeTime = Date.now();
             Logger.write("DISCONNECTED " + ws.remoteAddress + ":" + ws.remotePort + ", code: " + ws._closeCode +
                 ", reason: \"" + ws._closeMessage + "\", name: \"" + ws.playerTracker._name + "\"");
+            if (ws.playerTracker) {
+                ws.playerTracker.savePlayerData();
+                require('./playerData').flush();
+            }
         });
         this.socketCount++;
         this.clients.push(ws);

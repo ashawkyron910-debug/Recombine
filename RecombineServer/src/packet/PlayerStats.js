@@ -12,6 +12,10 @@ class PlayerStats {
         flags |= this.playerTracker.frozen;
         writer.writeUInt8(flags);
         writer.writeUInt32(this.playerTracker.coins >>> 0);
+        writer.writeUInt32(this.playerTracker.totalCoinsEarned >>> 0);
+        writer.writeUInt32(this.playerTracker.bestScore >>> 0);
+        writer.writeUInt16(this.playerTracker.totalFeeds >>> 0);
+        writer.writeUInt16(this.playerTracker.goldCoinsCollected >>> 0);
         return writer.toBuffer();
     }
 }

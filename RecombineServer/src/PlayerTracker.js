@@ -3,6 +3,7 @@ var Vec2 = require('./modules/Vec2');
 var BinaryWriter = require("./packet/BinaryWriter");
 var Colors = require('./modules/Colors');
 var {Quad} = require("./modules/QuadNode.js");
+var playerData = require('./playerData');
 
 class PlayerTracker {
     constructor(server, socket) {
@@ -29,6 +30,12 @@ class PlayerTracker {
         this.speed = 0; // Custom player speed
         this._score = 0; // Needed for leaderboard
         this.coins = 0;
+        this.totalCoinsEarned = 0;
+        this.bestScore = 0;
+        this.totalFeeds = 0;
+        this.goldCoinsCollected = 0;
+        this.gamesPlayed = 0;
+        this.dataKey = null;
         this._scale = 1;
         this.gm = false;
         this.lastMessage = { time: 0, text: '' };
@@ -219,15 +226,27 @@ class PlayerTracker {
         }
         if (!scale)
             return scale = this._score = 0.4; // reset scale
-        else
+        else {
+            if (this._score > this.bestScore) {
+                this.bestScore = Math.floor(this._score);
+            }
             return this._scale = Math.pow(Math.min(64 / scale, 1), 0.4);
+        }
     }
     addCoins(amount) {
         if (!amount) return;
         this.coins += amount;
+        this.totalCoinsEarned += amount;
+        playerData.syncFromPlayer(this);
         if (this.socket && this.socket.packetHandler) {
             this.socket.packetHandler.sendPacket(new Packet.PlayerStats(this));
         }
+    }
+    savePlayerData() {
+        if (this._score > this.bestScore) {
+            this.bestScore = Math.floor(this._score);
+        }
+        playerData.syncFromPlayer(this);
     }
     joinGame(name, skin) {
         if (this.cells.length)
@@ -240,8 +259,9 @@ class PlayerTracker {
         this.spectate = false;
         this.freeRoam = false;
         this.frozen = false;
-        this.coins = 0;
         this.spectateTarget = null;
+        this.gamesPlayed += 1;
+        this.savePlayerData();
         var packetHandler = this.socket.packetHandler;
         if (!this.isMi && this.socket.isConnected != null) {
             // some old clients don't understand ClearAll message
@@ -284,6 +304,7 @@ class PlayerTracker {
             this.cells = [];
             this.isRemoved = true;
             this.mouse = null;
+            this.savePlayerData();
             this.socket.packetHandler.pressSpace = false;
             this.socket.packetHandler.pressQ = false;
             this.socket.packetHandler.pressW = false;
@@ -302,6 +323,9 @@ class PlayerTracker {
         if (this.isRemoved || this.isMinion)
             return; // do not update
         this.socket.packetHandler.process();
+        if ((this.server.ticks % 750) === 0) {
+            this.savePlayerData();
+        }
         if (this.isMi)
             return;
         // update viewbox

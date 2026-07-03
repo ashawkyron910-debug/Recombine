@@ -649,6 +649,22 @@
                     stats.coins = msg.getUint32(offset, true);
                     offset += 4;
                 }
+                if (offset + 4 <= msg.byteLength) {
+                    stats.totalCoins = msg.getUint32(offset, true);
+                    offset += 4;
+                }
+                if (offset + 4 <= msg.byteLength) {
+                    stats.bestScore = msg.getUint32(offset, true);
+                    offset += 4;
+                }
+                if (offset + 2 <= msg.byteLength) {
+                    stats.feeds = msg.getUint16(offset, true);
+                    offset += 2;
+                }
+                if (offset + 2 <= msg.byteLength) {
+                    stats.goldCoins = msg.getUint16(offset, true);
+                    offset += 2;
+                }
                 drawStats();
                 break;
             case 52:// swal
@@ -1276,6 +1292,14 @@
             var text;
             if (stat === "coins") {
                 text = "Coins: " + stats[stat].toLocaleString();
+            } else if (stat === "totalCoins") {
+                text = "Total earned: " + stats[stat].toLocaleString();
+            } else if (stat === "bestScore") {
+                text = "Best score: " + stats[stat].toLocaleString();
+            } else if (stat === "feeds") {
+                text = "Feeds: " + stats[stat].toLocaleString();
+            } else if (stat === "goldCoins") {
+                text = "Gold coins: " + stats[stat].toLocaleString();
             } else {
                 text = stat + ": " + (stats[stat] ? "yes" : "no");
             }
