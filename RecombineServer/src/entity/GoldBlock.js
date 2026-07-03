@@ -12,8 +12,14 @@ class GoldBlock extends Cell {
         this.isAgitated = true;
     }
 
-    canEat() {
-        return false;
+    canEat(cell) {
+        return cell.type === 3;
+    }
+
+    onEat(prey) {
+        if (prey.type === 3 && prey.owner) {
+            prey.owner.addCoins(this.server.config.goldCoinReward);
+        }
     }
 
     onAdd(server) {

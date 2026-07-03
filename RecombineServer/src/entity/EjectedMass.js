@@ -18,6 +18,9 @@ class EjectedMass extends Cell {
     };
 
     onEaten(hunter) {
+        if (hunter.type === 6) {
+            return;
+        }
         if (hunter.owner) {
             hunter.owner.addCoins(this.server.config.goldCoinReward);
         }

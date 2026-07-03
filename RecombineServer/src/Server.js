@@ -762,8 +762,13 @@ class Server {
                 return;
             var block = m.cell.type === 6 ? m.cell : m.check;
             var other = block === m.cell ? m.check : m.cell;
-            if (other.type !== 6) {
-                other.position.add(m.p.product(push));
+            if (other.type !== 6 && !other.isRemoved) {
+                var away = other.position.difference(block.position);
+                var dist = away.dist();
+                if (dist > 0) {
+                    away = away.product(1 / dist);
+                    other.position.add(away.product(push));
+                }
             }
             return;
         }
@@ -785,8 +790,12 @@ class Server {
     resolveCollision(m) {
         var cell = m.cell;
         var check = m.check;
-        if (cell.type === 6 || check.type === 6)
-            return;
+        if (cell.type === 6 || check.type === 6) {
+            var isFeedIntoBlock = (cell.type === 3 && check.type === 6) || (cell.type === 6 && check.type === 3);
+            if (!isFeedIntoBlock) {
+                return;
+            }
+        }
         if (cell._size > check._size) {
             cell = m.check;
             check = m.cell;
@@ -991,6 +1000,7 @@ class Server {
             } else {
                 ejected = new Entity.EjectedMass(this, null, pos, this.config.ejectSize);
             }
+            ejected.owner = client;
             ejected.color = { r: 255, g: 215, b: 0 };
             ejected.setBoost(this.config.ejectVelocity, angle);
             this.addNode(ejected);
