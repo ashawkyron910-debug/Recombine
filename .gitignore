@@ -12,6 +12,4 @@ RecombineServer/src/db/
 # Lock files
 package-lock.json
 
-# Editor
-**/*.swp
-.vscode/
+.run/

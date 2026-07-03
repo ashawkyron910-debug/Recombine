@@ -15,3 +15,5 @@ git commit -m "Auto-update: $timestamp"
 git push origin HEAD
 
 Write-Host "Pushed to GitHub."
+
+& (Join-Path $repoRoot "scripts\restart-servers.ps1")

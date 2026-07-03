@@ -27,10 +27,24 @@ See `RecombineServer/LICENSE.txt` (Apache-2.0).
 
 ## Auto-push to GitHub
 
-This repo includes a Cursor hook (`.cursor/hooks.json`) that commits and pushes changes when an agent session ends.
+This repo includes a Cursor hook (`.cursor/hooks.json`) that commits and pushes changes when an agent session ends, then **restarts both servers** automatically.
 
-To push manually:
+To start both servers manually:
+
+```powershell
+.\scripts\start-servers.ps1
+```
+
+To restart both servers:
+
+```powershell
+.\scripts\restart-servers.ps1
+```
+
+To push and restart:
 
 ```powershell
 .\scripts\auto-push.ps1
 ```
+
+Open the game at **http://localhost:8080/#localhost**
