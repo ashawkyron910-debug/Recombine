@@ -364,6 +364,12 @@
             setInterval(drawGameScene, 1E3 / 60);
         }
         setInterval(() => {
+            if (wsIsOpen() && !hasOverlay) {
+                var t = parseInt(localStorage.getItem('timePlayed') || '0', 10) + 1;
+                localStorage.setItem('timePlayed', t);
+            }
+        }, 1000);
+        setInterval(() => {
             sendMouseMove();
             if (zPressed) sendUint8(17);
             if (wPressed) sendUint8(21);
@@ -372,6 +378,7 @@
 
         null == ws && showConnecting();
         wjQuery("#overlays").show();
+        updateHomeProfile();
     }
 
     function onTouchStart(e) {
@@ -1267,6 +1274,55 @@
             }
     }
 
+    function updateHomeProfile() {
+        var nickEl = document.getElementById('nick');
+        var nick = nickEl && nickEl.value ? nickEl.value : 'Nameless';
+        var nameEl = document.getElementById('profile-name');
+        var labelEl = document.getElementById('play-nick-label');
+        if (nameEl) nameEl.textContent = nick;
+        if (labelEl) labelEl.textContent = nick;
+
+        var coins = stats.coins || 0;
+        var coinEl = document.getElementById('profile-coins');
+        if (coinEl) coinEl.textContent = coins.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+        var total = stats.totalCoins || 0;
+        var level = Math.max(1, Math.floor(Math.sqrt(total / 500)) + 1);
+        var xpPrev = (level - 1) * (level - 1) * 500;
+        var xpNext = level * level * 500;
+        var pct = xpNext > xpPrev ? Math.min(99, Math.floor(((total - xpPrev) / (xpNext - xpPrev)) * 100)) : 0;
+
+        var levelEl = document.getElementById('profile-level');
+        var xpBar = document.getElementById('profile-xp-bar');
+        var xpText = document.getElementById('profile-xp-text');
+        if (levelEl) levelEl.textContent = level;
+        if (xpBar) xpBar.style.width = pct + '%';
+        if (xpText) xpText.textContent = pct + '%';
+
+        var memberEl = document.getElementById('profile-member');
+        if (memberEl) {
+            if (authToken) {
+                memberEl.textContent = 'GOLD MEMBER';
+                memberEl.className = 'member-status gold';
+            } else {
+                memberEl.textContent = 'NOT A GOLD MEMBER';
+                memberEl.className = 'member-status';
+            }
+        }
+
+        var timePlayed = parseInt(localStorage.getItem('timePlayed') || '0', 10);
+        var hours = Math.floor(timePlayed / 3600);
+        var mins = Math.floor((timePlayed % 3600) / 60);
+        var timeEl = document.getElementById('profile-time');
+        if (timeEl) timeEl.textContent = hours + ' Hours & ' + ('0' + mins).slice(-2) + ' Minutes';
+
+        var rankEl = document.getElementById('profile-rank');
+        if (rankEl) rankEl.textContent = stats.bestScore ? Math.max(1, 99999 - Math.floor(stats.bestScore / 10)) : '---';
+
+        var bestEl = document.getElementById('profile-best');
+        if (bestEl) bestEl.textContent = (stats.bestScore || 0).toLocaleString();
+    }
+
     function drawStats() {
         const height = 50 + 32 * Object.keys(stats).length;
         statsCanvas = document.createElement("canvas");
@@ -1305,6 +1361,7 @@
             }
             ctx.fillText(text, 16, 64 + 32 * b++);
         }
+        updateHomeProfile();
     }
 
     function Cell(uid, ux, uy, usize, ucolor, uname, a, nameColor, animations) {
@@ -1410,6 +1467,7 @@
         localStorage.removeItem('token');
         location.reload();
     }
+    wHandle.updateHomeProfile = updateHomeProfile;
     wHandle.setNick = function(arg, arg1 = '') {
         hideOverlays();
         userNickName = `<${arg1}>${arg}`;
@@ -1480,6 +1538,7 @@
                 var value = $(this).attr("type") == "checkbox" ? $(this).is(":checked") : $(this).val();
                 wHandle.localStorage.setItem("checkbox-" + id, value);
             });
+            updateHomeProfile();
         });
         if (null == wHandle.localStorage.AB8) {
             wHandle.localStorage.AB8 = ~~(100 * Math.random());

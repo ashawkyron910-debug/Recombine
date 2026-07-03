@@ -14,19 +14,19 @@
     <title>Home - RecombineServer</title>
 
     <link id="favicon" rel="icon" type="image/png" href="assets/img/favicon.png" />
-    <link href='https://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu:400,700' rel='stylesheet' type='text/css'>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/index.css?v=13" rel="stylesheet">
+    <link href="assets/css/index.css?v=14" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="assets/js/fp.min.js"></script>
     <script src="assets/js/log.js"></script>
     <script src="assets/js/vector.js"></script>
     <script src="assets/js/sweetalert.min.js"></script>
-    <script src="assets/js/main_out.js?v=68"></script> 
+    <script src="assets/js/main_out.js?v=69"></script>
 </head>
 
-<body>
+<body class="dark-mode">
     <div class="modal fade" id="inPageModal" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -46,125 +46,161 @@
             </div>
         </div>
     </div>
+
     <div id="overlays">
         <div id="helloDialog">
-            <form role="form">
-                <div class="form-group">
-                    <h2 id="title">RecombineServer</h2>
+            <div class="home-layout">
+                <div class="profile-panel">
+                    <div class="profile-tabs">
+                        <button type="button" class="profile-tab active" data-tab="profile" onclick="switchHomeTab('profile')">Profile</button>
+                        <button type="button" class="profile-tab" data-tab="logs" onclick="switchHomeTab('logs')">Logs</button>
+                    </div>
+
+                    <div id="tab-profile" class="tab-panel active">
+                        <h2 id="profile-name" class="profile-name">Nameless</h2>
+                        <div id="profile-member" class="member-status">NOT A GOLD MEMBER</div>
+
+                        <div class="level-row">
+                            <div class="level-badge" id="profile-level">1</div>
+                            <div class="xp-wrap">
+                                <div class="xp-label">XP</div>
+                                <div class="xp-track">
+                                    <div class="xp-fill" id="profile-xp-bar"></div>
+                                    <span class="xp-text" id="profile-xp-text">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-stats-box">
+                            <div class="profile-stat-line">
+                                <span class="stat-icon">&#9201;</span>
+                                <span>Time played: <b id="profile-time">0 Hours & 00 Minutes</b></span>
+                            </div>
+                            <div class="profile-stat-line">
+                                <span class="stat-icon">&#9733;</span>
+                                <span>Your rank: <b id="profile-rank">---</b></span>
+                            </div>
+                            <div class="profile-stat-line">
+                                <span class="stat-icon">&#127942;</span>
+                                <span>Best score: <b id="profile-best">0</b></span>
+                            </div>
+                        </div>
+
+                        <div class="profile-actions">
+                            <button type="button" class="action-btn" title="Logout" onclick="logout(event)">&#128682;</button>
+                            <button type="button" class="action-btn" title="Spin" onclick="swal('Coming soon!')">&#127920;</button>
+                            <button type="button" class="action-btn" title="Skins" onclick="window.open('skins.php','_blank')">&#128214;</button>
+                            <button type="button" class="action-btn" title="Refresh stats" onclick="updateHomeProfile()">&#128260;</button>
+                        </div>
+
+                        <div class="coin-row">
+                            <div class="coin-icon">&#129689;</div>
+                            <div class="coin-amount" id="profile-coins">0</div>
+                            <button type="button" class="buy-coins-btn" onclick="swal('Buy coins coming soon!')">Buy Coins</button>
+                        </div>
+
+                        <div class="shoutout-box">
+                            <div class="shoutout-title">Random G-Member Shoutout Of the Day:</div>
+                            <div class="shoutout-actions">
+                                <button type="button" class="shout-btn gold-name">Armoty</button>
+                                <button type="button" class="shout-btn gift-btn">&#128176; Gift</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tab-logs" class="tab-panel">
+                        <div class="logs-box" id="profile-logs">
+                            <p>Welcome to Recombine!</p>
+                            <p>Feed gold blocks with W to earn coins.</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <input id="nick" class="form-control save" data-box-id="0" placeholder="Nick" maxlength="15" />
-                    <br clear="both" />
-                </div>
+                <div class="play-panel">
+                    <div class="play-header" id="play-nick-label">Guest</div>
 
-                <div class="form-group">
-                    <input id="skin" class="form-control save" data-box-id="9" placeholder="Skin" maxlength="15" style="width: 60%; display: inline-block" />
-                    <a class="btn btn-success" href="skins.php" target="_blank" style="width: 38%">Skins list</a>
-                </div>
+                    <form role="form" class="play-form">
+                        <input id="nick" class="home-input save" data-box-id="0" placeholder="Nickname" maxlength="15" oninput="updateHomeProfile()" />
+                        <input id="skin" class="home-input save" data-box-id="9" placeholder="Skin" maxlength="15" />
 
-                <div class="form-group">
-                    <select class="form-select form-control save" data-box-id="10" onchange="setserver(this.value)">
-                        <option value="ws.wynell.me:2052">Original</option>
-                        <option value="ws.wynell.me:2082">Experimental</option>
-                        <option value="localhost:2052">Localhost</option>
-                    </select>
-                </div>
+                        <select class="home-input save" data-box-id="10" onchange="setserver(this.value)">
+                            <option value="ws.wynell.me:2052">Original</option>
+                            <option value="ws.wynell.me:2082">Experimental</option>
+                            <option value="localhost:2052">Localhost</option>
+                        </select>
 
-                <div class="form-group dark-mode-row">
-                    <span class="dark-mode-label-text">Dark mode</span>
-                    <label class="dark-mode-switch" title="Toggle dark mode">
-                        <input type="checkbox" id="dark-mode-toggle" class="save" data-box-id="4" onchange="setDarkTheme(this.checked)">
-                        <span class="dark-mode-slider"></span>
-                    </label>
-                </div>
+                        <div class="dark-mode-row">
+                            <span class="dark-mode-label-text">Dark mode</span>
+                            <label class="dark-mode-switch" title="Toggle dark mode">
+                                <input type="checkbox" id="dark-mode-toggle" class="save" data-box-id="4" onchange="setDarkTheme(this.checked)" checked>
+                                <span class="dark-mode-slider"></span>
+                            </label>
+                        </div>
 
-                <!--<div class="form-group">
-                    <input id="server" class="form-control" data-box-id="1" placeholder="Server" />
-                    <button id="connect" class="btn btn-success" onclick="setserver($('#server').val()); return false;">Connect</button>
-                    <br clear="both" />
-                </div>-->
+                        <button type="submit" id="play-btn" onclick="setNick(document.getElementById('nick').value, document.getElementById('skin').value); return false;" class="btn-play-main btn-needs-server">PLAY</button>
 
-                <div class="form-group">
-                    <button type="submit" id="play-btn" onclick="setNick(document.getElementById('nick').value, document.getElementById('skin').value); return false;" class="btn btn-play btn-primary btn-needs-server">Play</button>
-                    <button onclick="$('#settings, #instructions').toggle(); return false;" class="btn btn-info btn-settings" id="settings-btn"><i class="glyphicon glyphicon-cog"></i></button>
-                    <br clear="both" />
-                </div>
-
-                <div id="settings" class="checkbox" style="display:none;">
-                    <div class="form-group" id="mainform">
-                        <button id="spectate-btn" onclick="spectate(); return false;" style="width: 100%" class="btn btn-warning btn-spectate btn-needs-server">Spectate
+                        <button type="button" class="side-btn shop-btn" onclick="swal('Shop coming soon!')">
+                            <span class="side-btn-icon">&#129689;</span> Shop
                         </button>
-                        <br clear="both" />
+                        <button type="button" class="side-btn gold-btn" onclick="document.getElementById('auth-btn') ? authBtn.click() : swal('Discord login coming soon!')">
+                            <span class="side-btn-icon">&#128176;</span> Become Gold
+                        </button>
+                        <button type="button" class="side-btn settings-open" onclick="$('#settings').toggle(); return false;" title="Settings">&#9881;</button>
+                    </form>
+
+                    <div id="settings" class="settings-panel" style="display:none;">
+                        <button id="spectate-btn" onclick="spectate(); return false;" class="btn-spectate btn-needs-server">Spectate</button>
+                        <label><input type="checkbox" class="save" data-box-id="2" onchange="setSkins(!$(this).is(':checked'));"> No skins</label>
+                        <label><input type="checkbox" class="save" data-box-id="3" onchange="setNames(!$(this).is(':checked'));"> No names</label>
+                        <label><input type="checkbox" class="save" data-box-id="5" onchange="setColors($(this).is(':checked'));"> No colors</label>
+                        <label><input type="checkbox" class="save" data-box-id="6" onchange="setShowMass($(this).is(':checked'));"> Show mass</label>
+                        <label><input type="checkbox" class="save" data-box-id="7" onchange="setSmooth($(this).is(':checked'));"> Smooth render</label>
+                        <label><input type="checkbox" class="save" data-box-id="8" onchange="setChatHide($(this).is(':checked'));"> Hide chat</label>
                     </div>
-                    <div style="margin: 6px;">
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="2" onchange="setSkins(!$(this).is(':checked'));"> No skins</label>
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="3" onchange="setNames(!$(this).is(':checked'));"> No names</label>
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="5" onchange="setColors($(this).is(':checked'));"> No colors</label>
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="6" onchange="setShowMass($(this).is(':checked'));"> Show mass</label>
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="7" onchange="setSmooth($(this).is(':checked'));"> Smooth Render</label>
-                        <label>
-                            <input type="checkbox" class="save" data-box-id="8" onchange="setChatHide($(this).is(':checked'));"> Hide Chat</label>
+
+                    <div id="instructions" class="play-instructions">
+                        <b>Controls:</b> Mouse move · Space split · W feed · E recombine
+                    </div>
+
+                    <div id="footer" class="play-footer">
+                        <a href="https://dsc.gg/eewynell"><img src="assets/img/discord.png" width="36" height="36" alt="Discord" /></a>
                     </div>
                 </div>
-            </form>
-
-            <div id="instructions">
-                <hr/>
-                <center>
-                    <span class="text-muted">
-                        Move your mouse to control your cell<br/>
-                        Press <b>Space</b> to split<br/>
-                        Press <b>W</b> to eject some mass<br/>
-                        Press <b>E</b> to recombine<br/>
-                        Press <b>X</b> to spawn a virus<br/>
-                        Press <b>M</b> to respawn<br/>
-                        Press <b>F</b> to freeze<br/>
-                    </span>
-                </center>
             </div>
-
-            <hr />
-            <div id="footer">
-                <a href="https://dsc.gg/eewynell"><img src="assets/img/discord.png" width="48" height="48" /></a>
-                | eeWynell#9999
-            </div>
-
         </div>
+
         <div id="authDialog">
             <form role="form">
                 <div class="form-group">
                     <h2 id="title">Auth</h2>
                 </div>
-
-                <div id="auth-description">
-
-                </div>
-
+                <div id="auth-description"></div>
                 <div class="form-group">
-                    <button type="submit" id="auth-btn" class="btn btn-play btn-primary btn-needs-server">Log in</button>
+                    <button type="submit" id="auth-btn" class="btn-play-main btn-needs-server">Log in</button>
                 </div>
             </form>
-
         </div>
     </div>
 
     <div id="connecting">
-        <div style="width: 350px; background-color: #FFFFFF; margin: 100px auto; border-radius: 15px; padding: 5px 15px 5px 15px;">
+        <div class="connecting-card">
             <h2>Connecting</h2>
-            <p> If you cannot connect to the servers, check if you have some anti virus or firewall blocking the connection.</p>
+            <p>If you cannot connect to the servers, check if antivirus or firewall is blocking the connection.</p>
         </div>
     </div>
 
     <canvas id="canvas" width="800" height="600"></canvas>
     <input type="text" id="chat_textbox" placeholder="Press enter to chat!" maxlength="200" />
-    <div style="font-family:'Ubuntu'">&nbsp;</div>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script>
+        function switchHomeTab(tab) {
+            document.querySelectorAll('.profile-tab').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.getElementById('tab-profile').classList.toggle('active', tab === 'profile');
+            document.getElementById('tab-logs').classList.toggle('active', tab === 'logs');
+        }
+    </script>
 </body>
 </html>
